@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#07090d" />
+  <meta name="description" content="AI Car Diagnostic — an interactive 3D garage experience for preliminary vehicle troubleshooting." />
+  <title>AI Car Diagnostic — Smart Garage Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="noise"></div>
+  <div id="three-stage" aria-hidden="true"></div>
+  <div class="vignette"></div>
+
+  <header class="topbar glass">
+    <a class="brand" href="#home" aria-label="AI Car Diagnostic home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 64 64"><path d="M13 36l5-15h28l5 15M10 38h44v13a5 5 0 0 1-5 5h-3a5 5 0 0 1-5-5H23a5 5 0 0 1-5 5h-3a5 5 0 0 1-5-5V38Z"/><circle cx="20" cy="43" r="4"/><circle cx="44" cy="43" r="4"/><path d="M24 12h16M32 5v14"/></svg>
+      </span>
+      <span><strong>AI CAR</strong><small>DIAGNOSTIC</small></span>
+    </a>
+    <nav class="desktop-nav" aria-label="Primary navigation">
+      <a href="#diagnose">Diagnose</a>
+      <a href="#garage">Garage</a>
+      <a href="#how">How it works</a>
+    </nav>
+    <button class="sound-btn" id="soundBtn" type="button" aria-label="Toggle ambient sound" aria-pressed="false">
+      <span class="sound-dot"></span><span>Garage ambience</span>
+    </button>
+  </header>
+
+  <main>
+    <section id="home" class="hero section-shell">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="pulse"></span> AI-ASSISTED VEHICLE TRIAGE</div>
+        <h1>Your car talks.<br><span>We help you listen.</span></h1>
+        <p>Describe the symptom or attach a photo. Get a fast preliminary diagnostic with likely causes, urgency, and practical next steps — inside an interactive digital garage.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#diagnose">Start diagnosis <span>→</span></a>
+          <button class="btn btn-ghost" id="focusCarBtn" type="button">Inspect 3D car</button>
+        </div>
+        <div class="trust-row">
+          <div><strong>24/7</strong><span>quick triage</span></div>
+          <div><strong>&lt; 30s</strong><span>demo result</span></div>
+          <div><strong>Safety first</strong><span>urgent issue flags</span></div>
+        </div>
+      </div>
+      <aside class="scan-card glass" aria-label="Live vehicle scan visualization">
+        <div class="scan-head"><span>VEHICLE SCAN</span><b id="scanPercent">READY</b></div>
+        <div class="scanner-mini">
+          <div class="scanner-car">⌁</div>
+          <div class="scanner-line"></div>
+          <div class="scanner-grid"></div>
+        </div>
+        <div class="scan-metrics">
+          <div><span>ENGINE</span><b class="ok">ONLINE</b></div>
+          <div><span>BRAKES</span><b class="ok">STANDBY</b></div>
+          <div><span>ELECTRICAL</span><b class="ok">READY</b></div>
+        </div>
+      </aside>
+      <div class="scroll-cue"><span>Scroll to diagnose</span><i></i></div>
+    </section>
+
+    <section id="diagnose" class="diagnose-section section-shell">
+      <div class="section-title">
+        <span>01 / SMART DIAGNOSTIC</span>
+        <h2>Tell the garage what’s happening.</h2>
+        <p>Use symptoms, warning lights, sounds, smells, driving behavior, or a photo. More detail gives a better preliminary result.</p>
+      </div>
+
+      <div class="diagnostic-grid">
+        <form class="diagnostic-panel glass" id="diagnosticForm">
+          <div class="panel-head">
+            <div><span class="status-led"></span><strong>Diagnostic Console</strong></div>
+            <small>LOCAL AI TRIAGE</small>
+          </div>
+
+          <div class="vehicle-row">
+            <label>Make / model<input id="vehicle" type="text" placeholder="e.g. Porsche 911" autocomplete="off"></label>
+            <label>Year<input id="year" type="number" min="1970" max="2030" placeholder="2022"></label>
+            <label>Mileage<input id="mileage" type="text" placeholder="48,000 km"></label>
+          </div>
+
+          <label class="symptom-label">Describe the problem
+            <textarea id="symptom" required minlength="8" placeholder="Example: The engine cranks slowly, dashboard lights dim, and the car sometimes does not start in the morning..."></textarea>
+          </label>
+
+          <div class="quick-chips" aria-label="Quick symptom presets">
+            <button type="button" data-symptom="My car will not start and I hear rapid clicking. The lights are dim.">Won’t start</button>
+            <button type="button" data-symptom="The engine temperature is very high and I see steam from under the hood.">Overheating</button>
+            <button type="button" data-symptom="I hear grinding when braking and the brake pedal feels different.">Brake noise</button>
+            <button type="button" data-symptom="The check engine light is on and the engine shakes at idle.">Check engine</button>
+            <button type="button" data-symptom="There is a squealing sound from the engine bay that changes with RPM.">Strange noise</button>
+          </div>
+
+          <div class="upload-zone" id="uploadZone">
+            <input type="file" id="photoInput" accept="image/*" hidden>
+            <div class="upload-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L7 9m5-5 5 5M5 14v5h14v-5"/></svg>
+            </div>
+            <div><strong>Attach a vehicle photo</strong><span>Drop an image here or tap to browse · JPG, PNG, HEIC</span></div>
+            <button type="button" id="browseBtn">Browse</button>
+          </div>
+          <div class="image-preview" id="imagePreview" hidden>
+            <img id="previewImg" alt="Uploaded vehicle issue preview">
+            <div><strong id="previewName"></strong><span>Attached to diagnostic session</span></div>
+            <button type="button" id="removeImageBtn" aria-label="Remove image">×</button>
+          </div>
+
+          <button class="btn btn-primary diagnose-btn" id="diagnoseBtn" type="submit">
+            <span class="button-copy">Run AI diagnostic</span><span class="spinner" aria-hidden="true"></span>
+          </button>
+          <p class="microcopy">Preliminary guidance only. Serious faults require inspection by a qualified technician.</p>
+        </form>
+
+        <div class="result-panel glass" id="resultPanel" aria-live="polite">
+          <div class="empty-result" id="emptyResult">
+            <div class="radar"><i></i><i></i><i></i><span></span></div>
+            <h3>Ready to scan</h3>
+            <p>Your diagnostic report will appear here with likely causes, confidence levels, urgency, and next steps.</p>
+          </div>
+          <div class="loading-result" id="loadingResult" hidden>
+            <div class="ai-orb"><span></span></div>
+            <h3>Analyzing symptoms…</h3>
+            <p id="loadingText">Comparing symptom patterns</p>
+            <div class="progress"><span id="progressBar"></span></div>
+          </div>
+          <div class="diagnosis-result" id="diagnosisResult" hidden>
+            <div class="report-head">
+              <div><span class="report-kicker">PRELIMINARY REPORT</span><h3 id="reportTitle">Diagnostic complete</h3></div>
+              <span class="risk-badge" id="riskBadge">MODERATE</span>
+            </div>
+            <p class="summary" id="reportSummary"></p>
+            <div class="cause-list" id="causeList"></div>
+            <div class="next-step-box">
+              <span>RECOMMENDED NEXT STEP</span>
+              <strong id="nextStep"></strong>
+            </div>
+            <div class="safety-note" id="safetyNote"></div>
+            <button class="btn btn-ghost report-reset" id="resetBtn" type="button">New diagnostic</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="garage" class="garage-section section-shell">
+      <div class="section-title compact">
+        <span>02 / INTERACTIVE GARAGE</span>
+        <h2>Explore the car.</h2>
+        <p>Tap a system below or click highlighted parts in the 3D scene.</p>
+      </div>
+      <div class="garage-controls glass">
+        <button data-view="engine"><span>01</span><b>Engine bay</b><small>Cooling · belts · fluids</small></button>
+        <button data-view="wheels"><span>02</span><b>Brakes & wheels</b><small>Pads · rotors · tires</small></button>
+        <button data-view="electrical"><span>03</span><b>Electrical</b><small>Battery · charging</small></button>
+        <button data-view="overview"><span>04</span><b>Full vehicle</b><small>Return to overview</small></button>
+      </div>
+      <div class="part-readout glass" id="partReadout">
+        <span id="partIndex">SYSTEM 00</span>
+        <div><strong id="partName">Interactive vehicle</strong><p id="partDescription">Drag to orbit the garage. Tap highlighted areas to inspect systems.</p></div>
+      </div>
+    </section>
+
+    <section id="how" class="how-section section-shell">
+      <div class="section-title compact">
+        <span>03 / WORKFLOW</span>
+        <h2>From symptom to next step.</h2>
+      </div>
+      <div class="steps">
+        <article class="glass"><span>01</span><div class="step-icon">⌨</div><h3>Describe</h3><p>Explain what you see, hear, smell, or feel while driving.</p></article>
+        <article class="glass"><span>02</span><div class="step-icon">▣</div><h3>Attach</h3><p>Add a photo to keep visual evidence with the diagnostic session.</p></article>
+        <article class="glass"><span>03</span><div class="step-icon">✦</div><h3>Analyze</h3><p>The triage engine scores probable vehicle systems and safety risk.</p></article>
+        <article class="glass"><span>04</span><div class="step-icon">↗</div><h3>Act</h3><p>Get likely causes and a practical recommendation for what to do next.</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-brand">AI CAR DIAGNOSTIC <span>© 2026</span></div>
+    <p>Educational vehicle triage · Not a replacement for professional diagnosis</p>
+    <a href="#home">Back to top ↑</a>
+  </footer>
+
+  <div class="toast" id="toast" role="status"></div>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
